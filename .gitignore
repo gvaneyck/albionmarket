@@ -6,3 +6,5 @@ bin/
 *.iml
 out/
 target/
+config.json
+

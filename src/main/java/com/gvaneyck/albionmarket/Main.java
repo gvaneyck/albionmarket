@@ -6,26 +6,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-//            List<Recipe> recipes = new ArrayList<>();
-//            recipes.add(new Recipe("T3_LEATHER_0_1",
-//                    "T3_HIDE_0_1", "2",
-//                    "T2_LEATHER_0_1", "1"));
+            Map<String, String> config = objectMapper.readValue(Files.readAllBytes(new File("config.json").toPath()), Map.class);
 
             String recipeContent = new String(Files.readAllBytes(new File("recipes.json").toPath()), "UTF-8");
-            List<Recipe> recipes = objectMapper.readValue(recipeContent, new TypeReference<List<Recipe>>() {});
+            List<Recipe> recipes = objectMapper.readValue(recipeContent, new TypeReference<List<Recipe>>() {
+            });
 
-            File[] files = new File("S:\\AlbionMarket").listFiles();
+            File[] files = new File(config.get("packetDir")).listFiles();
             File theFile = files[files.length - 1];
             String[] lines = new String(Files.readAllBytes(theFile.toPath()), "UTF-8").split("\n");
 
-            Market market = new Market();
+            Market market = new Market(config.get("me"));
             for (String line : lines) {
                 try {
                     MarketEntryRaw raw = objectMapper.readValue(line, MarketEntryRaw.class);
@@ -35,12 +35,19 @@ public class Main {
                 }
             }
 
-//            recipes.get(9).getMaxBuy(market, -0.05);
+            System.out.println("Recipes");
             for (Recipe recipe : recipes) {
                 recipe.getMaxBuy(market, -0.05);
             }
+            System.out.println("");
 
+            System.out.println("Black Market");
             market.scanBlackMarket();
+            System.out.println("");
+
+            System.out.println("Sell Adjustments");
+            market.checkPriceDecreases();
+            System.out.println("");
         } catch (Exception e) {
             e.printStackTrace();
         }

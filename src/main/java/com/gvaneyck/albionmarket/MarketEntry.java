@@ -15,6 +15,8 @@ public class MarketEntry implements Comparable<MarketEntry> {
     private long price;
     private long qty;
 
+    private String seller;
+
     public int compareTo(MarketEntry o) {
         int result = Long.compare(price, o.getPrice());
         if (result == 0) {
