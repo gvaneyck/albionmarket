@@ -31,7 +31,7 @@ public class Recipe {
     public long getCost(Market market) {
         long total = 0;
         for (String input : inputs.keySet()) {
-            total += market.getCheapest(input).getPrice() * inputs.get(input);
+            total += market.getEntry(input).getPrice() * inputs.get(input);
         }
         return total;
     }
@@ -50,7 +50,7 @@ public class Recipe {
 
         long expectedSell;
         try {
-            expectedSell = market.getCheapest(output).getPrice() - 1;
+            expectedSell = market.getEntry(output).getPrice() - 1;
         } catch (NullPointerException e) {
             return;
         }
@@ -85,7 +85,7 @@ public class Recipe {
         for (String input : inputs.keySet()) {
             System.out.println(String.format("%s - %d",
                     input,
-                    market.getCheapest(input, lastIdxs.get(input)).getPrice()));
+                    market.getEntry(input, lastIdxs.get(input), true).getPrice()));
         }
         System.out.println();
     }
@@ -104,7 +104,7 @@ public class Recipe {
                 int idx = idxs.get(input);
                 idxs.put(input, idx + 1);
 
-                MarketEntry entry = market.getCheapest(input, idx);
+                MarketEntry entry = market.getEntry(input, idx);
                 prices.put(input, entry.getPrice());
                 qtys.put(input, entry.getQty());
 

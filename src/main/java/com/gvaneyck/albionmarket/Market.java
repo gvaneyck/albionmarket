@@ -38,20 +38,29 @@ public class Market {
         }
     }
 
-    public MarketEntry getCheapest(String item) {
-        return getCheapest(item, 0);
+    public MarketEntry getEntry(String item) {
+        return getEntry(item, 0, false);
     }
 
-    public MarketEntry getCheapest(String item, int idx) {
+    public MarketEntry getEntry(String item, int idx) {
+        return getEntry(item, idx, false);
+    }
+
+    public MarketEntry getEntry(String item, int idx, boolean safe) {
         List<MarketEntry> entries = offers.get(item);
         if (entries == null) {
             return null;
         }
 
-        return entries.get(idx);
+        if (safe && idx >= entries.size()) {
+            return entries.get(entries.size() - 1);
+        } else {
+            return entries.get(idx);
+        }
     }
 
     public void scanBlackMarket() {
+        List<BlackMarketOption> options = new ArrayList<>();
         for (String item : requests.keySet()) {
             if (offers.containsKey(item)) {
                 List<MarketEntry> request = requests.get(item);
@@ -60,15 +69,14 @@ public class Market {
                 List<MarketEntry> offer = offers.get(item);
                 long offerPrice = offer.get(0).getPrice();
                 if (requestPrice > offerPrice) {
-                    System.out.println(String.format("%s - %d = %dx %d --- %d -> %d",
-                            item,
-                            requestItem.getQty() * (requestPrice - offerPrice),
-                            requestItem.getQty(),
-                            requestPrice - offerPrice,
-                            offerPrice,
-                            requestPrice));
+                    options.add(new BlackMarketOption(item, requestItem.getQty(), requestPrice, offerPrice));
                 }
             }
+        }
+
+        Collections.sort(options);
+        for (BlackMarketOption option : options) {
+            System.out.println(option);
         }
     }
 }
