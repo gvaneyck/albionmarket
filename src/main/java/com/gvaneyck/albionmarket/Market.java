@@ -1,5 +1,7 @@
 package com.gvaneyck.albionmarket;
 
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -108,6 +110,22 @@ public class Market {
                 System.out.println(String.format("%s - %d -> %d @ %d",
                         item, myPrice, minPrice, total));
             }
+        }
+    }
+
+    public void dumpLowestPrices() {
+        try {
+            Writer out = new FileWriter("history/" + System.currentTimeMillis() + ".txt");
+            for (String item : offers.keySet()) {
+                out.write(item);
+                out.write(" ");
+                out.write("" + offers.get(item).get(0).getPrice());
+                out.write("\n");
+            }
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

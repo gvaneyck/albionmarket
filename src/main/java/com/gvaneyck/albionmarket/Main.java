@@ -41,13 +41,15 @@ public class Main {
             }
             System.out.println("");
 
+            System.out.println("Sell Adjustments");
+            market.checkPriceDecreases();
+            System.out.println("");
+
             System.out.println("Black Market");
             market.scanBlackMarket();
             System.out.println("");
 
-            System.out.println("Sell Adjustments");
-            market.checkPriceDecreases();
-            System.out.println("");
+            market.dumpLowestPrices();
         } catch (Exception e) {
             e.printStackTrace();
         }
