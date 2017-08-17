@@ -68,7 +68,7 @@ public class Market {
         }
     }
 
-    public void scanBlackMarket() {
+    public void scanBlackMarket(long threshold) {
         List<BlackMarketOption> options = new ArrayList<>();
         for (String item : requests.keySet()) {
             if (offers.containsKey(item)) {
@@ -77,7 +77,7 @@ public class Market {
                 long requestPrice = requestItem.getPrice();
                 List<MarketEntry> offer = offers.get(item);
                 long offerPrice = offer.get(0).getPrice();
-                if (requestPrice > offerPrice) {
+                if (requestPrice > offerPrice + threshold) {
                     options.add(new BlackMarketOption(item, requestItem.getQty(), requestPrice, offerPrice));
                 }
             }

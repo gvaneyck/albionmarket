@@ -46,7 +46,7 @@ public class Main {
             System.out.println("");
 
             System.out.println("Black Market");
-            market.scanBlackMarket();
+            market.scanBlackMarket(10000);
             System.out.println("");
 
             market.dumpLowestPrices();
