@@ -14,6 +14,7 @@ public class Recipe {
 
     private String output;
     private Map<String, Integer> inputs;
+    private int fame;
 
     public Recipe(String output, String... inputs) {
         this.output = output;
@@ -36,7 +37,11 @@ public class Recipe {
         return total;
     }
 
-    public void getMaxBuy(Market market, double margin) {
+    public long getMaxBuy(Market market, double margin) {
+        return getMaxBuy(market, margin, true);
+    }
+
+    public long getMaxBuy(Market market, double margin, boolean print) {
         Map<String, Integer> lastIdxs = new LinkedHashMap<>();
         Map<String, Integer> idxs = new LinkedHashMap<>();
         Map<String, Long> qtys = new LinkedHashMap<>();
@@ -52,7 +57,7 @@ public class Recipe {
         try {
             expectedSell = market.getEntry(output).getPrice() - 1;
         } catch (NullPointerException e) {
-            return;
+            return 0;
         }
 
         double maxPrice = expectedSell * (1 - margin);
@@ -62,7 +67,7 @@ public class Recipe {
         try {
             long nextCost = getNextCost(market, idxs, qtys, prices);
             if (nextCost >= maxPrice) {
-                return;
+                return 0;
             }
             while (nextCost < maxPrice) {
                 qty++;
@@ -76,18 +81,29 @@ public class Recipe {
         } catch (NullPointerException e) {
             // Missing market data
 //            System.err.println("Missing market data for " + output);
-            return;
+            return 0;
         } catch (Exception e) {
             // We could out of bounds on getNextCost, assume we should just buy the entire market
         }
 
-        System.out.println(String.format("%s - %d for %.1f%% (%d), sold for %d, invest %d", output, qty, (100f * totalProfit / totalCost), totalProfit, expectedSell, totalCost));
-        for (String input : inputs.keySet()) {
-            System.out.println(String.format("%s - %d",
-                    input,
-                    market.getEntry(input, lastIdxs.get(input), true).getPrice()));
+        if (print) {
+            System.out.println(String.format("%s - %d for %.1f%% (%d), sold for %d, invest %d", output, qty, (100f * totalProfit / totalCost), totalProfit, expectedSell, totalCost));
+            for (String input : inputs.keySet()) {
+                System.out.println(String.format("%s - %d",
+                        input,
+                        market.getEntry(input, lastIdxs.get(input), true).getPrice()));
+            }
+            System.out.println();
         }
-        System.out.println();
+
+        return qty;
+    }
+
+    public void getFameForMargin(Market market, double margin) {
+        long qty = getMaxBuy(market, margin, false);
+        if (qty > 0) {
+            System.out.println(String.format("%s - %d for %d", output, qty, qty * fame));
+        }
     }
 
     private long getNextCost(Market market, Map<String, Integer> idxs, Map<String, Long> qtys, Map<String, Long> prices) {

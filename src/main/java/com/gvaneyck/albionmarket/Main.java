@@ -41,6 +41,12 @@ public class Main {
             }
             System.out.println("");
 
+            System.out.println("Fame");
+            for (Recipe recipe : recipes) {
+                recipe.getFameForMargin(market, -0.13);
+            }
+            System.out.println("");
+
             System.out.println("Sell Adjustments");
             market.checkPriceDecreases();
             System.out.println("");
