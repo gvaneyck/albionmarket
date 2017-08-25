@@ -97,7 +97,7 @@ public class Market {
             boolean hasMe = false;
             for (MarketEntry entry : offers.get(item)) {
                 if (!hasMe) {
-                    if (entry.getSeller().equals(me)) {
+                    if (entry.getSeller() != null && entry.getSeller().equals(me)) {
                         hasMe = true;
                         myPrice = entry.getPrice();
                     } else {
