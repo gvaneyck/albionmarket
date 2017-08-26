@@ -15,17 +15,16 @@ public class Main {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            Map<String, String> config = objectMapper.readValue(Files.readAllBytes(new File("config.json").toPath()), Map.class);
+            Map<String, Object> config = objectMapper.readValue(Files.readAllBytes(new File("config.json").toPath()), Map.class);
 
             String recipeContent = new String(Files.readAllBytes(new File("recipes.json").toPath()), "UTF-8");
-            List<Recipe> recipes = objectMapper.readValue(recipeContent, new TypeReference<List<Recipe>>() {
-            });
+            List<Recipe> recipes = objectMapper.readValue(recipeContent, new TypeReference<List<Recipe>>() {});
 
-            File[] files = new File(config.get("packetDir")).listFiles();
+            File[] files = new File((String)config.get("packetDir")).listFiles();
             File theFile = files[files.length - 1];
             String[] lines = new String(Files.readAllBytes(theFile.toPath()), "UTF-8").split("\n");
 
-            Market market = new Market(config.get("me"));
+            Market market = new Market((String)config.get("me"));
             for (String line : lines) {
                 try {
                     MarketEntryRaw raw = objectMapper.readValue(line, MarketEntryRaw.class);
@@ -47,6 +46,13 @@ public class Main {
             }
             System.out.println("");
 
+            System.out.println("Focus Recipes");
+            Map<String, Map<String, Integer>> masteries = (Map<String, Map<String, Integer>>)config.get("masteries");
+            for (Recipe recipe : recipes) {
+                recipe.getFocusProfit(market, getFocusEfficiency(masteries, recipe.getOutput()));
+            }
+            System.out.println("");
+
             System.out.println("Sell Adjustments");
             market.checkPriceDecreases();
             System.out.println("");
@@ -59,5 +65,23 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static double getFocusEfficiency(Map<String, Map<String, Integer>> masteries, String item) {
+        double total = 0;
+        String tier = item.substring(1, 2);
+        String name = item.substring(3, item.indexOf("_", 3));
+
+        total += masteries.get(name).get("4") * 0.3;
+        total += masteries.get(name).get("5") * 0.3;
+        total += masteries.get(name).get("6") * 0.3;
+        total += masteries.get(name).get("7") * 0.3;
+        total += masteries.get(name).get("8") * 0.3;
+
+        if (masteries.get(name).containsKey(tier)) {
+            total += masteries.get(name).get(tier) * 2.5;
+        }
+
+        return total;
     }
 }

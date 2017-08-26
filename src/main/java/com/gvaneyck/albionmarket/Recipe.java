@@ -15,6 +15,7 @@ public class Recipe {
     private String output;
     private Map<String, Integer> inputs;
     private int fame;
+    private int focus;
 
     public Recipe(String output, String... inputs) {
         this.output = output;
@@ -131,5 +132,27 @@ public class Recipe {
             }
         }
         return total;
+    }
+
+    public void getFocusProfit(Market market, double focusEfficiency) {
+        double expectedSell;
+        try {
+            expectedSell = (market.getEntry(output).getPrice() - 1) * 1.8;
+        } catch (NullPointerException e) {
+            return;
+        }
+
+        long cost = 0;
+        try {
+            for (String item : inputs.keySet()) {
+                long qty = inputs.get(item);
+                cost += qty * market.getEntry(item).getPrice();
+            }
+        } catch (Exception e) {
+            return;
+        }
+
+        double focusCost = focus / Math.pow(2, focusEfficiency / 100);
+        System.out.println(String.format("%s - %.2f (%.1f focus each)", output, (expectedSell - cost) / focusCost, focusCost * 1.8));
     }
 }
